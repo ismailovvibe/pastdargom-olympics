@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Profilni Tahrirlash{% endblock %}
+{% block content %}
+<div class="min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md animate-scale">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 border-t-4 border-blue-600">
+            <h1 class="text-3xl font-bold text-center mb-2 text-gray-800">Profilni Tahrirlash</h1>
+            <p class="text-center text-gray-500 mb-8">Avatar va bioingizni yangilang</p>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div>
+                    {{ form.avatar.label_tag }}<br>
+                    {{ form.avatar }}
+                    {% if form.avatar.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.avatar.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    {{ form.bio.label_tag }}
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.bio.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 rounded-lg btn-pulse shadow-lg">
+                    Saqlash
+                </button>
+            </form>
+
+            <div class="mt-6 text-center">
+                <a href="/profiles/" class="text-gray-600 hover:text-gray-800">Ortga qaytish</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

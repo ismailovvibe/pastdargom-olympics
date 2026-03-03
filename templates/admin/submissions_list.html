@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Submissions - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-paper-plane text-green-600 mr-3"></i>Barcha Submissionlar
+        </h1>
+        <a href="{% url 'custom_admin:dashboard' %}" class="text-blue-600 hover:text-blue-800">
+            <i class="fas fa-arrow-left mr-2"></i>Orqaga
+        </a>
+    </div>
+
+    <!-- Submissions Table -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gradient-to-r from-green-500 to-green-600 text-white">
+                <tr>
+                    <th class="px-6 py-4 font-semibold">Foydalanuvchi</th>
+                    <th class="px-6 py-4 font-semibold">Savol</th>
+                    <th class="px-6 py-4 font-semibold">Javob</th>
+                    <th class="px-6 py-4 font-semibold">Natija</th>
+                    <th class="px-6 py-4 font-semibold">Ball</th>
+                    <th class="px-6 py-4 font-semibold">Shubhali</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for submission in submissions %}
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 font-semibold text-gray-800">{{ submission.user.username }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ submission.question.text|truncatewords:5 }}</td>
+                    <td class="px-6 py-4 text-gray-600">
+                        {% if submission.code %}
+                            <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ submission.code|truncatewords:3 }}</code>
+                        {% elif submission.answer_text %}
+                            {{ submission.answer_text|truncatewords:3 }}
+                        {% else %}
+                            {{ submission.mc_choice }}
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if submission.is_correct %}
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">✓ To'g'ri</span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">✗ Xato</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded font-bold">
+                            {{ submission.score }}/{{ submission.question.max_score }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if submission.is_cheating %}
+                            <span class="bg-red-500 text-white px-3 py-1 rounded text-xs font-semibold">🚨 Ha</span>
+                        {% else %}
+                            <span class="bg-green-500 text-white px-3 py-1 rounded text-xs font-semibold">✓ Yo'q</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-3 block opacity-50"></i>
+                        Submissionlar topilmadi
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

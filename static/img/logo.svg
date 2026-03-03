@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="300" height="100">
+  <rect width="64" height="64" fill="none"/>
+  <path d="M12 6h40v12a10 10 0 0 1-10 10h-20a10 10 0 0 1-10-10z" fill="#4F46E5"/>
+  <path d="M14 18v4a6 6 0 0 0 6 6h24a6 6 0 0 0 6-6v-4" fill="#6366F1"/>
+  <path d="M20 28v22h24V28H20zm4 4h16v14H24V32z" fill="#A5B4FC"/>
+  <text x="32" y="52" font-family="Arial, sans-serif" font-size="8" fill="#1E3A8A" text-anchor="middle">School Olympiad</text>
+</svg>

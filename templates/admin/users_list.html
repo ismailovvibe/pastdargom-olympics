@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Foydalanuvchilar - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">
+            <i class="fas fa-users text-blue-600 mr-3"></i>Barcha Foydalanuvchilar
+        </h1>
+        <a href="{% url 'custom_admin:dashboard' %}" class="text-blue-600 hover:text-blue-800">
+            <i class="fas fa-arrow-left mr-2"></i>Orqaga
+        </a>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <form method="GET" class="flex gap-4 flex-wrap">
+            <input type="text" name="search" placeholder="Ism yoki email'ni qidirish..." 
+                   value="{{ search }}" class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+            
+            <select name="filter" class="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                <option value="">Hammasini ko'rsat</option>
+                <option value="admin" {% if filter_type == 'admin' %}selected{% endif %}>Adminlar</option>
+                <option value="banned" {% if filter_type == 'banned' %}selected{% endif %}>Bloklangan</option>
+                <option value="active" {% if filter_type == 'active' %}selected{% endif %}>Faol</option>
+            </select>
+            
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                <i class="fas fa-search mr-2"></i>Qidirish
+            </button>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="bg-white rounded-lg shadow overflow-x-auto">
+        <table class="w-full text-sm text-left">
+            <thead class="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                <tr>
+                    <th class="px-6 py-4 font-semibold">ID</th>
+                    <th class="px-6 py-4 font-semibold">Foydalanuvchi Nomi</th>
+                    <th class="px-6 py-4 font-semibold">Email</th>
+                    <th class="px-6 py-4 font-semibold">Hvuqlar</th>
+                    <th class="px-6 py-4 font-semibold">Ball</th>
+                    <th class="px-6 py-4 font-semibold">Mashg'ulotlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="border-b hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 text-gray-700">{{ user.id }}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-circle text-green-500 text-xs"></i>
+                            <span class="font-semibold text-gray-800">{{ user.username }}</span>
+                            {% if user.is_staff %}
+                                <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-semibold">👨‍💼 Admin</span>
+                            {% endif %}
+                            {% if user.is_banned %}
+                                <span class="bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold">🚫 Bloklangan</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-gray-600">{{ user.email }}</td>
+                    <td class="px-6 py-4">
+                        {% if user.is_staff %}
+                            <span class="text-red-600 font-semibold">Admin</span>
+                        {% else %}
+                            <span class="text-blue-600 font-semibold">Foydalanuvchi</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if user.profile %}
+                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded font-bold">{{ user.profile.score }}</span>
+                        {% else %}
+                            <span class="text-gray-500">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'custom_admin:edit_user' user.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-semibold mr-2 inline-block transition">
+                            <i class="fas fa-edit mr-1"></i>Tahrirlash
+                        </a>
+                        <a href="{% url 'custom_admin:delete_user' user.id %}" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm font-semibold inline-block transition">
+                            <i class="fas fa-trash mr-1"></i>O'chirish
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-3 block opacity-50"></i>
+                        Foydalanuvchilar topilmadi
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

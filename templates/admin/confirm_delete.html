@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto my-10">
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ type|title }}ni o'chirish</h1>
+        <p class="text-gray-600 mb-6">Bu amalni qaytara olmaysiz!</p>
+        
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <p class="text-red-800 font-semibold">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Rostan ham "<strong>{{ object }}</strong>"ni o'chirib tashlamoqchisiz?
+            </p>
+        </div>
+        
+        <form method="POST" class="flex gap-4">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                <i class="fas fa-trash mr-2"></i>Ha, o'chir
+            </button>
+            <a href="javascript:history.back()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-semibold transition">
+                <i class="fas fa-arrow-left mr-2"></i>Yo'q, orqaga
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

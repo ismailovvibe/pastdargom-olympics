@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Audit Log - Admin{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">
+        <i class="fas fa-clipboard-list text-gray-600 mr-2"></i>Activity Log
+    </h1>
+    <p class="text-gray-600">Administrator va tizim tomonidan bajarilgan barcha harakatlar.</p>
+</div>
+
+<div class="overflow-x-auto bg-white rounded-lg shadow-lg p-6">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-100 border-b">
+            <tr>
+                <th class="px-4 py-2 text-left">Vaqt</th>
+                <th class="px-4 py-2 text-left">Foydalanuvchi</th>
+                <th class="px-4 py-2 text-left">Amal</th>
+                <th class="px-4 py-2 text-left">IP manzil</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr class="border-b hover:bg-gray-50">
+                <td class="px-4 py-2 text-gray-700">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                <td class="px-4 py-2 text-gray-800">{{ log.user.username if log.user else 'N/A' }}</td>
+                <td class="px-4 py-2 text-gray-600">{{ log.action }}</td>
+                <td class="px-4 py-2 text-gray-600">{{ log.ip_address|default:'-' }}</td>
+            </tr>
+            {% endfor %}
+            {% if not logs %}
+            <tr><td colspan="4" class="px-4 py-6 text-center text-gray-500">Hech qanday yozuv yo‘q</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

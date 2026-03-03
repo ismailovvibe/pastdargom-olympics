@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: school-platform
+    runtime: python
+    pythonVersion: 3.11
+    startCommand: "python manage.py migrate && daphne -b 0.0.0.0 -p $PORT school_platform.asgi:application"
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        fromDatabase:
+          name: school-platform-db
+          property: host
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: school-platform-db
+    databaseName: school_platform
+    user: postgres
+    plan: free

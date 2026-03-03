@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}School Olympiad{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeIn { 0% { opacity: 0; transform: translateY(10px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes slideOutUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-20px); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .animate-in { animation: fadeIn 0.5s ease-out backwards; }
+        .animate-slide { animation: slideUp 0.6s ease-out backwards; }
+        .animate-scale { animation: scaleIn 0.4s ease-out backwards; }
+        .animate-out { animation: slideOutUp 0.4s ease-out forwards; }
+        .animate-pulse-custom { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .btn-pulse { transition: all 0.3s ease; }
+        .btn-pulse:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .nav-link { color: inherit; transition: all 0.3s ease; }
+        .nav-link:hover { background-color: rgba(0,0,0,0.05); border-radius: 0.5rem; }
+        
+        /* Icon Styles */
+        .icon-large { font-size: 3rem; line-height: 1; }
+        .icon-medium { font-size: 2rem; line-height: 1; }
+        .icon-small { font-size: 1.25rem; line-height: 1; }
+        
+        /* Toast Notifications */
+        .toast-container {
+            @apply fixed top-6 right-6 z-[9999] flex flex-col gap-2;
+        }
+        
+        .toast {
+            @apply px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 max-w-xs animate-in;
+        }
+        
+        .toast.success {
+            @apply bg-green-500 text-white;
+        }
+        
+        .toast.error {
+            @apply bg-red-500 text-white;
+        }
+        
+        .toast.info {
+            @apply bg-blue-500 text-white;
+        }
+        
+        .toast.warning {
+            @apply bg-yellow-500 text-white;
+        }
+        
+        /* Sticky Footer Layout */
+        html, body {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+    <!-- Django Messages (converted to toasts by JS) -->
+    {% if messages %}
+        {% for message in messages %}
+            <div data-message="{{ message }}" data-type="{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}" hidden></div>
+        {% endfor %}
+    {% endif %}
+
+    <nav class="sticky top-0 z-50 bg-white shadow-lg p-4 animate-in border-b-4 border-blue-500">
+        <div class="container mx-auto flex flex-wrap md:flex-nowrap justify-between items-center gap-4">
+            <a href="/" class="font-bold text-2xl text-white hover:opacity-90 transition flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 rounded-lg">
+                <i class="fas fa-trophy text-yellow-300"></i> Olympiad
+            </a>
+            <div class="flex flex-wrap gap-2 justify-center">
+                <a href="/olympiads/" data-page="olympiads" class="nav-link px-4 py-2 rounded-lg text-sm btn-pulse flex items-center gap-2 text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition duration-200 border-2 border-transparent hover:border-blue-500">
+                    <i class="fas fa-book"></i> Olimpiadalar
+                </a>
+                <a href="/profiles/scoreboard/" data-page="scoreboard" class="nav-link px-4 py-2 rounded-lg text-sm btn-pulse flex items-center gap-2 text-gray-700 hover:bg-yellow-100 hover:text-yellow-700 transition duration-200 border-2 border-transparent hover:border-yellow-500">
+                    <i class="fas fa-medal"></i> Reyting
+                </a>
+                <a href="/chat/general/" data-page="chat" class="nav-link px-4 py-2 rounded-lg text-sm btn-pulse flex items-center gap-2 text-gray-700 hover:bg-green-100 hover:text-green-700 transition duration-200 border-2 border-transparent hover:border-green-500">
+                    <i class="fas fa-comments"></i> Chat
+                </a>
+                <a href="/news/" data-page="news" class="nav-link px-4 py-2 rounded-lg text-sm btn-pulse flex items-center gap-2 text-gray-700 hover:bg-orange-100 hover:text-orange-700 transition duration-200 border-2 border-transparent hover:border-orange-500">
+                    <i class="fas fa-newspaper"></i> Elonlar
+                </a>
+                {% if user.is_authenticated %}
+                    <span class="text-gray-700 px-4 py-2 text-sm flex items-center gap-2 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg border-2 border-gray-300 font-semibold">
+                        <i class="fas fa-user-circle text-purple-600"></i> {{ user.username }}
+                    </span>
+                    <a href="/profiles/" data-page="profile" class="nav-link px-4 py-2 rounded-lg text-sm btn-pulse flex items-center gap-2 text-gray-700 hover:bg-purple-100 hover:text-purple-700 transition duration-200 border-2 border-transparent hover:border-purple-500">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    {% if user.is_staff %}<a href="/admin/" data-page="admin" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg text-sm btn-pulse font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition">
+                        <i class="fas fa-cog"></i> Admin
+                    </a>{% endif %}
+                    <a href="/auth/logout/" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg text-sm btn-pulse flex items-center gap-2 shadow-lg hover:shadow-xl transition">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="/auth/login/" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-lg text-sm btn-pulse flex items-center gap-2 shadow-lg hover:shadow-xl transition">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="/auth/register/" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded text-sm btn-pulse flex items-center gap-2">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <main class="container mx-auto p-6 animate-slide">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="bg-gradient-to-r from-gray-800 to-gray-900 text-white py-12 shadow-lg border-t-4 border-blue-500 mt-auto">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 pb-8 border-b border-gray-700">
+                <!-- About Section -->
+                <div class="text-center md:text-left">
+                    <h3 class="text-xl font-bold mb-3 flex items-center justify-center md:justify-start gap-2">
+                        <i class="fas fa-graduation-cap text-yellow-400"></i> School Olympiad
+                    </h3>
+                    <p class="text-sm text-gray-300 leading-relaxed">
+                        Maktab olimpiadalari va test sinovlar uchun maxsus ishlab chiqilgan platforma
+                    </p>
+                </div>
+                
+                <!-- Creator Section -->
+                <div class="text-center">
+                    <h3 class="text-xl font-bold mb-3 flex items-center justify-center gap-2">
+                        <i class="fas fa-user-tie text-cyan-400"></i> Yaratuvchi
+                    </h3>
+                    <p class="text-sm text-gray-300">Ismailov Jasurbek Akmal o'g'li</p>
+                    <p class="text-xs text-gray-400 mt-1">Pastdarg'om tuman 2-son IMI</p>
+                </div>
+                
+                <!-- Year Section -->
+                <div class="text-center md:text-right">
+                    <h3 class="text-xl font-bold mb-3 flex items-center justify-center md:justify-end gap-2">
+                        <i class="fas fa-calendar-alt text-green-400"></i> Yil
+                    </h3>
+                    <p class="text-sm text-gray-300">© 2026 - Hozirgi vaqt</p>
+                    <p class="text-xs text-gray-400 mt-1">Barcha huquqlar himoya qilingan</p>
+                </div>
+            </div>
+            
+            <!-- Bottom Info -->
+            <div class="text-center border-t border-gray-700 pt-6">
+                <p class="text-sm text-gray-300 mb-3">
+                    <i class="fas fa-info-circle text-blue-400"></i> 
+                    2026 yil yaratilgan sayt Ismailov Jasurbek Akmal o'g'li tomonidan 
+                    <span class="text-purple-400 font-semibold">Pastdarg'om tuman 2-son IMI</span> 
+                    da ishlab chiqilgan
+                </p>
+                <p class="text-xs text-gray-400 mb-4">
+                    <i class="fas fa-code"></i> Powered by Django • WebSocket Real-time • Secure & Fast
+                </p>
+                <div class="flex justify-center gap-4 text-sm">
+                    <span class="text-gray-400"><i class="fas fa-tasks text-blue-400"></i> Olimpiadalar</span>
+                    <span class="text-gray-400"><i class="fas fa-comments text-green-400"></i> Chat</span>
+                    <span class="text-gray-400"><i class="fas fa-chart-bar text-yellow-400"></i> Reyting</span>
+                    <span class="text-gray-400"><i class="fas fa-newspaper text-orange-400"></i> Elonlar</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global Toast Notification System
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '<i class="fas fa-check-circle"></i>',
+                error: '<i class="fas fa-times-circle"></i>',
+                info: '<i class="fas fa-info-circle"></i>',
+                warning: '<i class="fas fa-exclamation-triangle"></i>'
+            };
+            
+            toast.innerHTML = `
+                ${icons[type]}
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('animate-out');
+                setTimeout(() => toast.remove(), 400);
+            }, duration);
+        }
+
+        // Global JS object for easy access
+        window.Toast = {
+            success: (msg) => showToast(msg, 'success'),
+            error: (msg) => showToast(msg, 'error'),
+            info: (msg) => showToast(msg, 'info'),
+            warning: (msg) => showToast(msg, 'warning')
+        };
+
+        // Show Django messages as toasts
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('[data-message]');
+            messages.forEach(msg => {
+                const type = msg.getAttribute('data-type') || 'info';
+                const text = msg.getAttribute('data-message');
+                showToast(text, type);
+            });
+            
+            // Highlight active navigation link based on current page
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link[data-page]');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                // Check if current path matches the link
+                if (currentPath.startsWith(href) || currentPath === href) {
+                    // Remove hover styling and apply active styling
+                    link.classList.remove('text-gray-700');
+                    
+                    // Apply color-coded active styling based on page type
+                    const page = link.getAttribute('data-page');
+                    if (page === 'olympiads') {
+                        link.classList.add('bg-blue-500', 'text-white', 'border-blue-600', 'shadow-lg');
+                        link.classList.remove('hover:bg-blue-100', 'hover:text-blue-700', 'hover:border-blue-500');
+                    } else if (page === 'scoreboard') {
+                        link.classList.add('bg-yellow-500', 'text-white', 'border-yellow-600', 'shadow-lg');
+                        link.classList.remove('hover:bg-yellow-100', 'hover:text-yellow-700', 'hover:border-yellow-500');
+                    } else if (page === 'chat') {
+                        link.classList.add('bg-green-500', 'text-white', 'border-green-600', 'shadow-lg');
+                        link.classList.remove('hover:bg-green-100', 'hover:text-green-700', 'hover:border-green-500');
+                    } else if (page === 'news') {
+                        link.classList.add('bg-orange-500', 'text-white', 'border-orange-600', 'shadow-lg');
+                        link.classList.remove('hover:bg-orange-100', 'hover:text-orange-700', 'hover:border-orange-500');
+                    } else if (page === 'profile') {
+                        link.classList.add('bg-purple-500', 'text-white', 'border-purple-600', 'shadow-lg');
+                        link.classList.remove('hover:bg-purple-100', 'hover:text-purple-700', 'hover:border-purple-500');
+                    }
+                }
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block title %}<i class="fas fa-comments"></i> Suhbat - {{ room_name }}{% endblock %}
+{% block content %}
+<div class="fixed inset-0 top-20 flex flex-col items-center bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="w-full max-w-3xl flex flex-col h-full">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 shadow-lg flex-shrink-0">
+        <div class="container mx-auto flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold"><i class="fas fa-comments mr-2"></i>{{ room_name|title }} Xonasi</h1>
+                <p class="text-blue-100 text-xs mt-1">Real-time suhbat</p>
+            </div>
+            <a href="/profiles/" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition text-sm">
+                <i class="fas fa-user-circle mr-1"></i>Profil
+            </a>
+        </div>
+    </div>
+
+    <!-- Messages Container (Scrollable) -->
+    <div id="chat-log" class="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth">
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="message-item flex gap-2 {% if msg.user.username == user.username %}justify-end{% else %}justify-start{% endif %}">
+                    <div class="{% if msg.user.username != user.username %}w-8 h-8 rounded-full {% if msg.user.is_staff %}bg-gradient-to-r from-red-500 to-orange-500{% else %}bg-gradient-to-r from-purple-400 to-pink-400{% endif %} flex items-center justify-center font-bold text-white text-sm flex-shrink-0{% endif %}">
+                        {% if msg.user.username != user.username %}{{ msg.user.username|first|upper }}{% endif %}
+                    </div>
+                    <div class="{% if msg.user.username == user.username %}message-bubble-sent rounded-3xl rounded-tr-none px-4 py-2{% elif msg.user.is_staff %}message-bubble-admin rounded-3xl rounded-tl-none px-4 py-2{% else %}message-bubble-received rounded-3xl rounded-tl-none px-4 py-2{% endif %}">
+                        {% if msg.user.username != user.username %}
+                            <p class="text-xs font-semibold {% if msg.user.is_staff %}text-red-600{% else %}text-gray-500{% endif %} mb-1">{{ msg.user.username }}{% if msg.user.is_staff %} 👨‍💼{% endif %}</p>
+                        {% endif %}
+                        <p class="text-sm break-words">{{ msg.content }}</p>
+                        <p class="text-xs opacity-70 mt-1">{{ msg.timestamp|date:"H:i" }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <!-- Loading Message -->
+            <div class="text-center py-8 animate-pulse">
+                <div class="inline-block bg-white px-4 py-2 rounded-full text-gray-500">
+                    ⏳ Xabarlar yuklanmoqda...
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Message Input Area (Always at Bottom) -->
+    <div class="bg-white border-t-2 border-gray-200 shadow-xl p-4 flex-shrink-0">
+        <div class="flex gap-3">
+            <input 
+                id="chat-message-input" 
+                type="text" 
+                placeholder="Xabarni yozing..." 
+                class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-blue-500 transition text-sm"
+                autofocus
+            />
+            <button 
+                id="chat-message-submit" 
+                class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-semibold btn-pulse transition flex items-center gap-2 text-sm"
+            >
+                <i class="fas fa-paper-plane"></i> Yuborish
+            </button>
+        </div>
+        <p class="text-xs text-gray-500 mt-2 text-center">Enter tugmasidan foydalanib ham xabar yuborishingiz mumkin</p>
+    </div>
+</div>
+
+<style>
+    /* Message Styles */
+    .message-item {
+        animation: slideInUp 0.3s ease-out;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .message-bubble-sent {
+        @apply ml-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white max-w-xs;
+    }
+    
+    .message-bubble-received {
+        @apply mr-auto bg-white text-gray-800 border-2 border-gray-200 max-w-xs;
+    }
+    
+    .message-bubble-admin {
+        @apply mr-auto bg-gradient-to-r from-red-100 to-orange-100 text-red-900 border-2 border-red-300 max-w-xs font-semibold;
+    }
+</style>
+
+<script>
+    const roomName = "{{ room_name }}";
+    const chatLog = document.querySelector('#chat-log');
+    const messageInput = document.querySelector('#chat-message-input');
+    const sendButton = document.querySelector('#chat-message-submit');
+
+    // Initialize WebSocket with correct protocol (ws or wss)
+    const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const chatSocket = new WebSocket(
+        scheme + '://' + window.location.host + '/ws/chat/' + roomName + '/'
+    );
+
+    chatSocket.onopen = function(e) {
+        console.log('Chat socket connected');
+        // Remove only the loading placeholder, not all messages
+        const loadingMsg = chatLog.querySelector('.animate-pulse');
+        if (loadingMsg) {
+            loadingMsg.remove();
+        }
+    };
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        addMessageToChat(data);
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed', e);
+        // provide helpful message based on close code
+        if (e.code === 4003) {
+            showNotification('Iltimos, tizimga kiring yoki ruyxatdan oting', 'ogohlantirish');
+        } else if (e.code === 4004) {
+            showNotification('Siz chatdan chetlatilgansiz – admin bilan boglaning', 'xato');
+        } else {
+            showNotification('Ulanish uzildi', 'xato');
+        }
+        // disable input so user can't keep typing
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+    };
+
+    chatSocket.onerror = function(e) {
+        console.error('Chat socket error:', e);
+        showNotification('Xabar yuborish xatosi', 'xato');
+    };
+
+    // Add message to chat
+    function addMessageToChat(data) {
+        // always scroll to bottom when we append, even if we're rendering history
+        const isSent = data.username === '{{ user.username }}';
+        const isAdmin = data.is_admin === true;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message-item flex gap-2 ' + (isSent ? 'justify-end' : 'justify-start');
+        
+        let avatarEmoji = data.username.charAt(0).toUpperCase();
+        
+        // Choose bubble color based on sender
+        let bubbleClass;
+        if (isSent) {
+            bubbleClass = 'message-bubble-sent rounded-3xl rounded-tr-none px-4 py-2';
+        } else if (isAdmin) {
+            bubbleClass = 'message-bubble-admin rounded-3xl rounded-tl-none px-4 py-2';  // Admin - Red
+        } else {
+            bubbleClass = 'message-bubble-received rounded-3xl rounded-tl-none px-4 py-2';  // User - White
+        }
+        
+        messageDiv.innerHTML = `
+            <div class="flex gap-2 ${isSent ? 'flex-row-reverse' : 'flex-row'}">
+                ${!isSent ? `
+                    <div class="w-8 h-8 rounded-full ${isAdmin ? 'bg-gradient-to-r from-red-500 to-orange-500' : 'bg-gradient-to-r from-purple-400 to-pink-400'} flex items-center justify-center font-bold text-white text-sm flex-shrink-0">
+                        ${avatarEmoji}
+                    </div>
+                ` : ''}
+                <div class="${bubbleClass}">
+                    ${!isSent ? `<p class="text-xs font-semibold ${isAdmin ? 'text-red-600' : 'text-gray-500'} mb-1">${data.username}${isAdmin ? ' 👨‍💼' : ''}</p>` : ''}
+                    <p class="text-sm break-words">${escapeHtml(data.message)}</p>
+                    <p class="text-xs opacity-70 mt-1">${formatTime(data.timestamp)}</p>
+                </div>
+            </div>
+        `;
+        
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // Send message
+    function sendMessage() {
+        const message = messageInput.value.trim();
+        
+        if (!message) {
+            showNotification('Xabar bo\'sh bo\'lishi mumkin emas', 'ogohlantirish');
+            return;
+        }
+
+        if (message.length > 500) {
+            showNotification('Xabar juda uzun (max 500 ta belgi)', 'ogohlantirish');
+            return;
+        }
+
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        
+        messageInput.value = '';
+        messageInput.focus();
+    }
+
+    // Event Listeners
+    sendButton.onclick = sendMessage;
+    
+    messageInput.onkeyup = function(e) {
+        if (e.keyCode === 13 && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
+
+    // Utility Functions
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        const bgColor = type === 'xato' ? 'bg-red-500' : type === 'ogohlantirish' ? 'bg-yellow-500' : 'bg-green-500';
+        
+        notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg animate-in`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Set focus on load
+    messageInput.focus();
+</script>
+{% endblock %}

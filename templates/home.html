@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<!-- Hero Section -->
+<div class="relative mb-12">
+    <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-3xl shadow-2xl overflow-hidden animate-in">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 -right-40 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -left-40 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="relative px-8 py-16 md:px-16 md:py-24 text-white text-center">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4 animate-slide">
+                <i class="fas fa-trophy text-yellow-300 mr-2"></i>Maktab Olimpiada Platformasi
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-100 animate-slide" style="animation-delay: 100ms">
+                O'zingizni isbot eting, ballar to'plang va reytingga yuqoriga ko'taring
+            </p>
+            
+            <div class="flex flex-wrap gap-4 justify-center animate-slide" style="animation-delay: 200ms">
+                {% if user.is_authenticated %}
+                    <a href="/olympiads/" class="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold hover:bg-blue-50 transition transform hover:scale-105 flex items-center gap-2">
+                        <i class="fas fa-play"></i> Olimpiadalarni Boshlash
+                    </a>
+                    <a href="/profiles/scoreboard/" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold transition transform hover:scale-105 flex items-center gap-2">
+                        <i class="fas fa-ranking-star"></i> Leaderboard Ko'rish
+                    </a>
+                {% else %}
+                    <a href="/auth/login/" class="bg-white text-blue-600 px-8 py-4 rounded-xl font-bold hover:bg-blue-50 transition transform hover:scale-105 flex items-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i> Kirish
+                    </a>
+                    <a href="/auth/register/" class="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-xl font-bold transition transform hover:scale-105 flex items-center gap-2">
+                        <i class="fas fa-user-plus"></i> Ro'yxatdan O'tish
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 animate-slide">
+    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 rounded-2xl shadow-lg border-l-4 border-blue-500 card-hover">
+        <p class="text-sm text-gray-600 mb-2"><i class="fas fa-book icon-small text-blue-600 mr-2"></i>Jami Olimpiadalar</p>
+        <p class="text-4xl font-bold text-blue-600">{{ olympiad_count }}</p>
+        <p class="text-xs text-gray-500 mt-2">Faol raqam</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-green-50 to-green-100 p-8 rounded-2xl shadow-lg border-l-4 border-green-500 card-hover">
+        <p class="text-sm text-gray-600 mb-2"><i class="fas fa-users icon-small text-green-600 mr-2"></i>Ishtirokchilar</p>
+        <p class="text-3xl font-bold text-green-600">{{ user_count }}</p>
+        <p class="text-xs text-gray-500 mt-2">Yakunlandi</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-8 rounded-2xl shadow-lg border-l-4 border-purple-500 card-hover">
+        <p class="text-sm text-gray-600 mb-2"><i class="fas fa-question icon-small text-purple-600 mr-2"></i>Savollar</p>
+        <p class="text-4xl font-bold text-purple-600">{{ question_count }}</p>
+        <p class="text-xs text-gray-500 mt-2">Barcha turlar</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-8 rounded-2xl shadow-lg border-l-4 border-orange-500 card-hover">
+        <p class="text-sm text-gray-600 mb-2"><i class="fas fa-check-circle icon-small text-orange-600 mr-2"></i>Jami Javoblar</p>
+        <p class="text-4xl font-bold text-orange-600">{{ submission_count }}</p>
+        <p class="text-xs text-gray-500 mt-2">Yuborilgan</p>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="mb-12">
+    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center animate-slide">
+        <i class="fas fa-star text-yellow-500 mr-2"></i> Asosiy Xususiyatlar
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Feature 1 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover animate-in" style="animation-delay: 0ms">
+            <div class="text-5xl mb-4 text-blue-500"><i class="fas fa-book-open"></i></div>
+            <h3 class="text-xl font-bold text-gray-800 mb-3">Ko'p Turli Olimpiadalar</h3>
+            <p class="text-gray-600 mb-4">Matematika, Fizika, Kimya, Informatika va boshqa fanlar bo'yicha olimpiadalar</p>
+            <ul class="text-sm text-gray-600 space-y-2">
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Matn tapshiriqlar</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Kod muammolari</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Bir tanlash savollari</li>
+            </ul>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover animate-in" style="animation-delay: 100ms">
+            <div class="text-5xl mb-4 text-green-500"><i class="fas fa-bolt"></i></div>
+            <h3 class="text-xl font-bold text-gray-800 mb-3">Real-time Reytingi</h3>
+            <p class="text-gray-600 mb-4">Foydalanuvchilar o'zlarining ballarini real-time da kuzatasadilar va reyting o'linni</p>
+            <ul class="text-sm text-gray-600 space-y-2">
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Tezkor baholash</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Ballar to'plash</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Leaderboard</li>
+            </ul>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 card-hover animate-in" style="animation-delay: 200ms">
+            <div class="text-5xl mb-4 text-purple-500"><i class="fas fa-comments"></i></div>
+            <h3 class="text-xl font-bold text-gray-800 mb-3">Real-time Chat</h3>
+            <p class="text-gray-600 mb-4">Boshqa o'yunchaklari bilan real-time suhbat qiling va voproslarni muhokama qiling</p>
+            <ul class="text-sm text-gray-600 space-y-2">
+                <li><i class="fas fa-check text-green-500 mr-2"></i> WebSocket ulanish</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Xabar tarixiy</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i> Blokni boshqarish</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+{% if not user.is_authenticated %}
+    <div class="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-3xl shadow-2xl p-12 text-white text-center animate-scale">
+        <h2 class="text-4xl font-bold mb-4">
+            <i class="fas fa-rocket text-yellow-300"></i> Hozir Boshlang
+        </h2>
+        <p class="text-xl mb-8 text-blue-100">Ro'yxtdan o'tib, olimpiadada qatnashing va reyti o'linni</p>
+        <div class="flex gap-4 justify-center flex-wrap">
+            <a href="/auth/register/" class="bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition transform hover:scale-105 flex items-center gap-2">
+                <i class="fas fa-user-plus"></i> Ro'yxatdan O'tish
+            </a>
+            <a href="/auth/login/" class="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-indigo-600 transition transform hover:scale-105 flex items-center gap-2">
+                <i class="fas fa-sign-in-alt"></i> Kirish
+            </a>
+        </div>
+    </div>
+{% else %}
+    <div class="bg-gradient-to-r from-green-600 to-blue-600 rounded-3xl shadow-2xl p-12 text-white text-center animate-scale">
+        <h2 class="text-4xl font-bold mb-4">
+            <i class="fas fa-handshake text-yellow-300"></i> Xush kelibsiz, {{ user.username }}!
+        </h2>
+        <p class="text-xl mb-8 text-green-100">O'z foydalanuvchi yo'nalishini tanlang va boshlang</p>
+        <div class="flex gap-4 justify-center flex-wrap">
+            <a href="/olympiads/" class="bg-white text-green-600 px-8 py-4 rounded-xl font-bold hover:bg-gray-100 transition transform hover:scale-105 flex items-center gap-2">
+                <i class="fas fa-book"></i> Olimpiadalar
+            </a>
+            <a href="/profiles/" class="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-green-600 transition transform hover:scale-105 flex items-center gap-2">
+                <i class="fas fa-user"></i> Profil
+            </a>
+            <a href="/chat/general/" class="border-2 border-white text-white px-8 py-4 rounded-xl font-bold hover:bg-white hover:text-green-600 transition transform hover:scale-105 flex items-center gap-2">
+                <i class="fas fa-comments"></i> Chat
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

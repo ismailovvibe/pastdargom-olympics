@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard{% endblock %}
+{% block content %}
+<div class="mb-8 animate-slide">
+    <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-trophy text-yellow-500 mr-2"></i>Leaderboard</h1>
+    <p class="text-gray-600">Eng yaxshi olimutikonlar ro'yxati</p>
+</div>
+
+<div class="max-w-4xl mx-auto">
+    {% if profiles %}
+        <div class="overflow-hidden">
+            <!-- Podium (Top 3) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 h-80">
+                {% for p in profiles|slice:":3" %}
+                    <div class="animate-in" style="animation-delay: {{ forloop.counter|add:'-1' }}00ms">
+                        {% if forloop.counter == 1 %}
+                            <!-- 1st Place -->
+                            <div class="h-full rounded-t-3xl bg-gradient-to-t from-yellow-400 to-yellow-300 shadow-2xl p-6 flex flex-col items-center justify-between transform scale-105">
+                                <div class="text-6xl mb-2"><i class="fas fa-medal text-yellow-600"></i></div>
+                                <h3 class="text-xl font-bold text-gray-900 text-center">{{ p.user.username }}</h3>
+                                <p class="text-4xl font-bold text-gray-900">{{ p.score }}</p>
+                                <div class="text-2xl"><i class="fas fa-star text-yellow-500 mr-1"></i>BIRINCHI</div>
+                            </div>
+                        {% elif forloop.counter == 2 %}
+                            <!-- 2nd Place -->
+                            <div class="h-full rounded-t-3xl bg-gradient-to-t from-gray-400 to-gray-300 shadow-xl p-6 flex flex-col items-center justify-between">
+                                <div class="text-6xl mb-2"><i class="fas fa-medal text-gray-500"></i></div>
+                                <h3 class="text-lg font-bold text-gray-900 text-center">{{ p.user.username }}</h3>
+                                <p class="text-3xl font-bold text-gray-900">{{ p.score }}</p>
+                                <div class="text-lg">2-O'RIN</div>
+                            </div>
+                        {% elif forloop.counter == 3 %}
+                            <!-- 3rd Place -->
+                            <div class="h-full rounded-t-3xl bg-gradient-to-t from-orange-400 to-orange-300 shadow-lg p-6 flex flex-col items-center justify-between">
+                                <div class="text-6xl mb-2"><i class="fas fa-medal text-orange-600"></i></div>
+                                <h3 class="text-lg font-bold text-gray-900 text-center">{{ p.user.username }}</h3>
+                                <p class="text-3xl font-bold text-gray-900">{{ p.score }}</p>
+                                <div class="text-lg">3-O'RIN</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Table for All Participants -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden animate-slide">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+                            <th class="px-6 py-4 text-left font-semibold"><i class="fas fa-chart-pie mr-1"></i>O'rin</th>
+                            <th class="px-6 py-4 text-left font-semibold"><i class="fas fa-user-circle mr-1"></i>Foydalanuvchi</th>
+                            <th class="px-6 py-4 text-right font-semibold"><i class="fas fa-star text-yellow-400 mr-1"></i>Ballar</th>
+                            <th class="px-6 py-4 text-right font-semibold"><i class="fas fa-chart-line mr-1"></i>O'zgarish</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in profiles %}
+                            <tr class="border-b border-gray-200 hover:bg-blue-50 transition card-hover">
+                                <td class="px-6 py-4">
+                                    <span class="inline-block w-10 h-10 rounded-full bg-gradient-to-r {% if forloop.counter == 1 %}from-yellow-400 to-yellow-500{% elif forloop.counter == 2 %}from-gray-400 to-gray-500{% elif forloop.counter == 3 %}from-orange-400 to-orange-500{% else %}from-blue-400 to-blue-500{% endif %} text-white font-bold flex items-center justify-center">
+                                        {{ forloop.counter }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center font-bold text-white">
+                                            {{ p.user.username|first|upper }}
+                                        </div>
+                                        <a href="/profiles/" class="font-semibold text-gray-800 hover:text-blue-600">{{ p.user.username }}</a>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full font-bold">
+                                        {{ p.score }} <i class="fas fa-trophy text-yellow-500 ml-1"></i>
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        {% if forloop.counter <= 3 %}
+                                            <span class="text-green-600 font-bold"><i class="fas fa-arrow-trend-up mr-1"></i>Yaxshi</span>
+                                        {% elif forloop.counter <= 10 %}
+                                            <span class="text-blue-600 font-bold"><i class="fas fa-minus mr-1"></i>O'rtacha</span>
+                                        {% else %}
+                                            <span class="text-gray-600 font-bold"><i class="fas fa-arrow-trend-down mr-1"></i>Yoqilish</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Stats -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 animate-slide">
+                <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-blue-500">
+                    <p class="text-gray-600 text-sm mb-1"><i class="fas fa-users mr-1 text-blue-500"></i>Hammasi</p>
+                    <p class="text-3xl font-bold text-blue-600">{{ profiles|length }}</p>
+                    <p class="text-xs text-gray-500 mt-2">Ishtirokchilar</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-green-500">
+                    <p class="text-gray-600 text-sm mb-1"><i class="fas fa-star text-yellow-500 mr-1"></i>Eng Yuqori</p>
+                    <p class="text-3xl font-bold text-green-600">
+                        {% for p in profiles|slice:":1" %}
+                            {{ p.score }}
+                        {% endfor %}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">Eng yaxshi natija</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-lg p-6 border-t-4 border-purple-500">
+                    <p class="text-gray-600 text-sm mb-1"><i class="fas fa-chart-bar mr-1 text-purple-500"></i>O'rtacha</p>
+                    <p class="text-3xl font-bold text-purple-600">
+                        {{ profiles|dictsort:"score"|length|default:0 }}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-2">Qatnashgan</p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-16 bg-white rounded-lg shadow-lg animate-scale">
+            <p class="text-6xl mb-4"><i class="fas fa-trophy text-yellow-500"></i></p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">O'zingizni isbot eting!</h2>
+            <p class="text-gray-600 mb-4">Ballar to'plang va reytingda yuqoriga ko'taring</p>
+            <a href="/olympiads/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold btn-pulse">
+                <i class="fas fa-book mr-1"></i>Olimpiadalar
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Mening Profilim{% endblock %}
+{% block content %}
+<div class="mb-8 animate-slide">
+    <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-user-circle text-blue-600 mr-2"></i>Mening Profilim</h1>
+    <p class="text-gray-600">Shaxsiy ma'lumot va statistika</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl">
+    <!-- Profile Card -->
+    <div class="lg:col-span-1 animate-scale">
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden sticky top-24">
+            <!-- Header Image -->
+            <div class="h-32 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+            
+            <!-- Profile Info -->
+            <div class="px-6 py-6">
+                <!-- Avatar -->
+                <div class="flex justify-center -mt-16 mb-4">
+                    {% if profile.avatar %}
+                        <img src="{{ profile.avatar.url }}" class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg" alt="Avatar">
+                    {% else %}
+                        <div class="w-24 h-24 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center font-bold text-white text-4xl border-4 border-white shadow-lg">
+                            {% if profile.user.username %}
+                                {{ profile.user.username|first|upper }}
+                            {% else %}
+                                ?
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- edit button -->
+                <div class="text-center mb-4">
+                    <a href="{% url 'edit_profile' %}" class="text-blue-600 hover:underline text-sm">Profilni tahrirlash</a>
+                </div>
+
+                <!-- User Info -->
+                <h2 class="text-2xl font-bold text-center text-gray-800">{{ profile.user.username }}</h2>
+                <p class="text-center text-gray-500 text-sm">@{{ profile.user.username }}</p>
+                <p class="text-center text-gray-500 text-sm">{{ profile.user.email }}</p>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-3 mt-6">
+                    <div class="bg-green-50 p-4 rounded-lg text-center border-l-4 border-green-500">
+                        <p class="text-xs text-gray-600 mb-1">Ballar</p>
+                        <p class="text-3xl font-bold text-green-600">{{ profile.score|default:0 }}</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg text-center border-l-4 border-blue-500">
+                        <p class="text-xs text-gray-600 mb-1">Rank</p>
+                        <p class="text-3xl font-bold text-blue-600">
+                            {{ profile.rank }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                {% if profile.bio %}
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-700">{{ profile.bio }}</p>
+                    </div>
+                {% endif %}
+
+                <!-- Submission stats -->
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <div class="bg-yellow-50 p-4 rounded-lg text-center border-l-4 border-yellow-500">
+                        <p class="text-xs text-gray-600 mb-1">Umumiy yuborishlar</p>
+                        <p class="text-2xl font-bold text-yellow-600">{{ total_submissions }}</p>
+                    </div>
+                    <div class="bg-indigo-50 p-4 rounded-lg text-center border-l-4 border-indigo-500">
+                        <p class="text-xs text-gray-600 mb-1">Toʻgʻri javoblar</p>
+                        <p class="text-2xl font-bold text-indigo-600">{{ correct_submissions }}</p>
+                    </div>
+                </div>
+
+                <!-- Join Date -->
+                <div class="mt-6 text-center text-sm text-gray-500 pt-6 border-t border-gray-200">
+                    <p><i class="fas fa-calendar mr-1 text-gray-500"></i>A'zoligi: {{ profile.user.date_joined|date:"d.m.Y" }}</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-6 space-y-2">
+                    <a href="/auth/password_reset/" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-center font-semibold btn-pulse block">
+                        <i class="fas fa-key mr-1"></i>Parolni O'zgartirish
+                    </a>
+                    <a href="/auth/logout/" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-center font-semibold btn-pulse block">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Chiqish
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats and Activity -->
+    <div class="lg:col-span-2 space-y-6 animate-slide">
+        <!-- Achievement Stats -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-chart-simple mr-2 text-blue-600"></i>Statistika</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border-l-4 border-blue-500">
+                    <p class="text-gray-600 text-sm mb-2">Jami Urinishlar</p>
+                    <p class="text-4xl font-bold text-blue-600">--</p>
+                    <p class="text-xs text-gray-500 mt-1">Barcha olimpiadalar bo'yicha</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg border-l-4 border-green-500">
+                    <p class="text-gray-600 text-sm mb-2">Muvaffaqiyatli Javoblar</p>
+                    <p class="text-4xl font-bold text-green-600">--</p>
+                    <p class="text-xs text-gray-500 mt-1">100% baholanganlar</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border-l-4 border-purple-500">
+                    <p class="text-gray-600 text-sm mb-2">Qatnashgan Olimpiadalar</p>
+                    <p class="text-4xl font-bold text-purple-600">--</p>
+                    <p class="text-xs text-gray-500 mt-1">Jami raqam</p>
+                </div>
+
+                <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border-l-4 border-orange-500">
+                    <p class="text-gray-600 text-sm mb-2">Eng Yaxshi Natijasi</p>
+                    <p class="text-4xl font-bold text-orange-600">{{ profile.score|default:0 }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Eng ko'p ball</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6"><i class="fas fa-chart-bar mr-2 text-blue-600"></i>So'nggi Faoliyat</h3>
+            
+            <div class="space-y-4">
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl mr-4"><i class="fas fa-check-circle text-green-500"></i></div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Profilingiz tayyor</p>
+                        <p class="text-sm text-gray-500">Hozir olimpiadalarni yechishni boshlashingiz mumkin</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl mr-4"><i class="fas fa-book text-blue-500"></i></div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Olimpiadalar mavjud</p>
+                        <p class="text-sm text-gray-500">Yangi olimpiadalar qo'shildi. Qatnashish uchun tayyor!</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                    <div class="text-3xl mr-4"><i class="fas fa-trophy text-yellow-500"></i></div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Leaderboard-da</p>
+                        <p class="text-sm text-gray-500">Ballar to'plaganingizni ko'ring va reyting o'tiladi</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="bg-blue-50 rounded-2xl shadow-lg p-8 border-2 border-blue-200">
+            <h3 class="text-2xl font-bold text-gray-800 mb-4"><i class="fas fa-bolt mr-2 text-yellow-500"></i>Tez Havolalar</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <a href="/olympiads/" class="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-lg transition">
+                    <i class="fas fa-book text-2xl"></i>
+                    <div>
+                        <p class="font-semibold">Olimpiadalar</p>
+                        <p class="text-xs text-gray-500">Barcha olimpiadalarni ko'rish</p>
+                    </div>
+                </a>
+
+                <a href="/profiles/scoreboard/" class="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-lg transition">
+                    <i class="fas fa-medal text-2xl text-yellow-500"></i>
+                    <div>
+                        <p class="font-semibold">Leaderboard</p>
+                        <p class="text-xs text-gray-500">Boshqa o'yunchaklarni ko'rish</p>
+                    </div>
+                </a>
+
+                <a href="/news/" class="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-lg transition">
+                    <i class="fas fa-bullhorn text-2xl text-blue-500"></i>
+                    <div>
+                        <p class="font-semibold">Elonlar</p>
+                        <p class="text-xs text-gray-500">Yangi elonlarni o'qish</p>
+                    </div>
+                </a>
+
+                <a href="/chat/general/" class="flex items-center gap-3 p-4 bg-white rounded-lg hover:shadow-lg transition">
+                    <i class="fas fa-message text-2xl text-purple-500"></i>
+                    <div>
+                        <p class="font-semibold">Chat</p>
+                        <p class="text-xs text-gray-500">Boshqa foydalanuvchilar bilan suhbat</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

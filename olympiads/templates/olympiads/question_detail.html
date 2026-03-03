@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}{{ question.text|truncatewords:5 }}{% endblock %}
+{% block content %}
+<div class="mb-8 animate-slide">
+    <a href="/olympiads/" class="text-blue-600 hover:text-blue-800 mb-4 inline-block"><i class="fas fa-arrow-left mr-1"></i>Olimpiadalar</a>
+    <a href="/olympiads/{{ question.olympiad.id }}/questions/" class="text-blue-600 hover:text-blue-800 mb-4 inline-block ml-4"><i class="fas fa-arrow-left mr-1"></i>Savollar</a>
+    <h1 class="text-3xl font-bold text-gray-800 mb-4"><i class="fas fa-pen-to-square text-blue-600 mr-2"></i>Savolga Javob</h1>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Question Panel -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-lg p-8 animate-scale">
+            <div class="mb-6 pb-6 border-b-2 border-gray-200">
+                <div class="flex items-start justify-between mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Savol Matni</h2>
+                        <p class="text-sm text-gray-500 mt-1">
+                            {% if question.question_type == 'text' %}<i class="fas fa-pen-to-square mr-1"></i>Matn javob{% elif question.question_type == 'code' %}<i class="fas fa-code mr-1"></i>Kod{% else %}<i class="fas fa-circle-check mr-1"></i>Bir tanlash{% endif %}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-2xl font-bold text-green-600">{{ question.max_score }}</p>
+                        <p class="text-xs text-gray-500">Max ballar</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <p class="text-lg text-gray-800 leading-relaxed">{{ question.text }}</p>
+                </div>
+
+                {% if question.hint %}
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-6">
+                        <p class="text-blue-800">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-2"></i><strong>Maslahat:</strong> {{ question.hint }}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Form -->
+            <form method="post" class="space-y-6" id="submission-form">
+                {% csrf_token %}
+
+                {% if question.question_type == 'text' %}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3"><i class="fas fa-file-alt text-blue-600 mr-2"></i>Matn Javobingiz</label>
+                        <textarea name="answer_text" rows="6" placeholder="Javobingizni yozing..." required
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                        <p class="text-xs text-gray-500 mt-2">Savollarga har bir qismga alohida javob bering</p>
+                    </div>
+
+                {% elif question.question_type == 'code' %}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3"><i class="fas fa-code text-orange-600 mr-2"></i>Python Kod</label>
+                        <textarea name="code" rows="8" placeholder="Python kodingizni yozing..." required
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition font-mono text-sm resize-none bg-gray-50"></textarea>
+                        <p class="text-xs text-gray-500 mt-2"><i class="fas fa-circle-info mr-1 text-blue-500"></i>Sizning kodingiz `print()` bilan natijasini ko'rsatishi kerak</p>
+                    </div>
+
+                {% elif question.question_type == 'multiple_choice' %}
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-3"><i class="fas fa-circle-check mr-1 text-purple-600"></i>Javobni Tanlang</label>
+                        <div class="space-y-3">
+                            {% for option in question.mc_options %}
+                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+                                    <input type="radio" name="mc_choice" value="{{ forloop.counter0 }}" required
+                                        class="w-5 h-5 text-blue-600" />
+                                    <span class="ml-3 text-gray-800">
+                                        <span class="font-semibold">{{ forloop.counter }}.</span> {{ option }}
+                                    </span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="flex gap-3">
+                    <button type="submit" id="submit-btn" class="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 rounded-lg btn-pulse shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="submit-text"><i class="fas fa-check mr-1"></i>Javobni Yuborish</span>
+                        <span id="submit-loading" class="hidden"><i class="fas fa-hourglass-end mr-1"></i>Yuborilmoqda...</span>
+                    </button>
+                    <a href="/olympiads/{{ question.olympiad.id }}/questions/" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 rounded-lg text-center btn-pulse transition">
+                        ← Ortga
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="animate-slide">
+        <div class="bg-white rounded-xl shadow-lg p-6 sticky top-24">
+            <h3 class="text-lg font-bold text-gray-800 mb-4"><i class="fas fa-info-circle mr-1 text-blue-600"></i>Ma'lumot</h3>
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Olimpiada:</p>
+                    <p class="font-semibold text-gray-800">{{ question.olympiad.title }}</p>
+                </div>
+
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Mavzu:</p>
+                    <p class="font-semibold text-gray-800">{{ question.olympiad.subject }}</p>
+                </div>
+
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600">Max Ballar:</p>
+                    <p class="font-semibold text-green-600 text-lg">{{ question.max_score }} <i class="fas fa-star text-yellow-400"></i></p>
+                </div>
+
+                <!-- Time Limit -->
+                <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                    <p class="text-sm text-gray-600 mb-2"><i class="fas fa-stopwatch mr-1 text-orange-600"></i>Vaqt Chegarasi:</p>
+                    <p class="font-semibold text-orange-600">{{ question.olympiad.duration_minutes }} minut</p>
+                    <div id="countdown" class="text-2xl font-bold text-orange-600 mt-2 hidden">
+                        <span id="countdown-display">00:00</span>
+                    </div>
+                </div>
+
+                <div class="border-t-2 border-gray-200 pt-4 mt-4">
+                    <p class="text-sm text-gray-600 mb-2"><i class="fas fa-lightbulb mr-1 text-yellow-500"></i>Maslahat:</p>
+                    <p class="text-sm text-gray-700">Javobingizni ehtiyotkorlik bilan tekshiring va yuborishdan oldin qayta ko'rib chiqing.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Loading state for form submission
+    const form = document.getElementById('submission-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const submitLoading = document.getElementById('submit-loading');
+
+    form.addEventListener('submit', function(e) {
+        submitBtn.disabled = true;
+        submitText.classList.add('hidden');
+        submitLoading.classList.remove('hidden');
+    });
+
+    // Countdown Timer
+    function startCountdown() {
+        const durationMinutes = {{ question.olympiad.duration_minutes }};
+        let totalSeconds = durationMinutes * 60;
+        const countdownDiv = document.getElementById('countdown');
+        const countdownDisplay = document.getElementById('countdown-display');
+        
+        countdownDiv.classList.remove('hidden');
+        
+        const timer = setInterval(() => {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            countdownDisplay.textContent = 
+                String(minutes).padStart(2, '0') + ':' + 
+                String(seconds).padStart(2, '0');
+            
+            // Change color based on time remaining
+            if (totalSeconds <= 60) {
+                countdownDiv.classList.add('text-red-600');
+                countdownDiv.classList.remove('text-orange-600');
+                if (totalSeconds == 60 || totalSeconds == 30 || totalSeconds == 10) {
+                    Toast.warning(`Faqat ${totalSeconds} soniya qoldi!`);
+                }
+            }
+            
+            totalSeconds--;
+            
+            if (totalSeconds < 0) {
+                clearInterval(timer);
+                countdownDisplay.textContent = '00:00';
+                Toast.error('Vaqt tugadi! Fiz avtomatik yuborish qilindi.');
+                // Auto-submit form
+                // form.submit(); // Uncomment for production
+            }
+        }, 1000);
+    }
+
+    // Start countdown on page load
+    document.addEventListener('DOMContentLoaded', startCountdown);
+</script>
+{% endblock %}

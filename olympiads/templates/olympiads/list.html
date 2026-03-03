@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Olimpiadalar{% endblock %}
+{% block content %}
+<div class="mb-8 animate-slide">
+    <h1 class="text-4xl font-bold text-gray-800 mb-2"><i class="fas fa-book text-blue-600 mr-2"></i>Olimpiadalar</h1>
+    <p class="text-gray-600">Ishtirok eting va o'zingizni isbot eting</p>
+</div>
+
+{% if user.is_staff %}
+    <div class="mb-6 animate-in">
+        <a href="/admin/olympiads/olympiad/add/" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold btn-pulse">
+            <i class="fas fa-plus mr-1"></i>Yangi Olimpiada
+        </a>
+    </div>
+{% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for o in olympiads %}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover animate-in" style="animation-delay: {{ forloop.counter|add:'-1' }}0ms">
+            <div class="bg-gradient-to-r {% if o.status == 'open' %}from-blue-500 to-blue-600{% elif o.status == 'in_progress' %}from-yellow-500 to-yellow-600{% else %}from-gray-500 to-gray-600{% endif %} h-24 flex items-center justify-center">
+                <div class="text-white text-center">
+                    <p class="text-sm font-semibold opacity-90">{{ o.subject }}</p>
+                    <p class="text-2xl font-bold">{{ o.title|truncatewords:3 }}</p>
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold 
+                        {% if o.status == 'open' %}bg-green-100 text-green-800{% elif o.status == 'in_progress' %}bg-yellow-100 text-yellow-800{% else %}bg-red-100 text-red-800{% endif %}">
+                        {% if o.status == 'open' %}<i class="fas fa-circle text-green-500 mr-1" style="font-size: 0.6rem;"></i>Ochiq{% elif o.status == 'in_progress' %}<i class="fas fa-circle text-yellow-500 mr-1" style="font-size: 0.6rem;"></i>Davomida{% else %}<i class="fas fa-circle text-red-500 mr-1" style="font-size: 0.6rem;"></i>Yopiq{% endif %}
+                    </span>
+                    <span class="text-xl"><i class="fas fa-hourglass-end mr-1"></i>{{ o.duration_minutes }} min</span>
+                </div>
+
+                <div class="space-y-2 mb-4 text-sm text-gray-600">
+                    <p class="flex items-center">
+                        <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>
+                        <span>Boshlanish: {{ o.start_time|date:"d.m.Y H:i" }}</span>
+                    </p>
+                    <p class="flex items-center">
+                        <i class="fas fa-flag-checkered mr-2 text-gray-500"></i>
+                        <span>Tugash: {{ o.end_time|date:"d.m.Y H:i" }}</span>
+                    </p>
+                    <p class="flex items-center">
+                        <i class="fas fa-question-circle mr-2 text-gray-500"></i>
+                        <span>Savollar: {{ o.questions.count }}</span>
+                    </p>
+                </div>
+
+                <div class="flex gap-2">
+                    <a href="/olympiads/{{ o.id }}/questions/" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-center font-semibold btn-pulse text-sm transition">
+                        Savollarni ko'rish
+                    </a>
+                    {% if user.is_staff %}
+                        <a href="/admin/olympiads/olympiad/{{ o.id }}/change/" class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-semibold btn-pulse text-sm transition">
+                            <i class="fas fa-pen mr-1"></i>O'zgartirish
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-span-full text-center py-16 animate-scale">
+            <p class="text-6xl mb-4"><i class="fas fa-inbox text-gray-400"></i></p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Olimpiadalar mavjud emas</h2>
+            <p class="text-gray-600 mb-4">Hozircha olimpiadalar yaratilmagan. Tez orada qo'shiladi!</p>
+            {% if user.is_staff %}
+                <a href="/admin/olympiads/olympiad/add/" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold btn-pulse">
+                    <i class="fas fa-plus mr-1"></i>Birinchi olimpiadani yaratish
+                </a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
